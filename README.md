@@ -47,7 +47,6 @@ This repository contains minimal packages to control the tracer robot using ROS.
    
 * Testing command
     ```
-    # receiving data from can0
     candump can0
     ```
 3. Launch ROS nodes
@@ -55,17 +54,14 @@ This repository contains minimal packages to control the tracer robot using ROS.
 * Start the base node for the Tracer robot
 
     ```
-    $ ros2 run tracer_base tracer_base_node
+    ros2 run tracer_base tracer_base_node
     ```
 
 * Then you can teleop to the robot
     ```
-    $ ros2 run tracer_base teleop_test
+    ros2 run tracer_base teleop_test
 
     ```
-**SAFETY PRECAUSION**: 
-
-Always have your remote controller ready to take over the control whenever necessary. 
 
 4. Run Cartographer
 
@@ -78,3 +74,7 @@ ros2 launch my_cartographer_launch cartographer_launch.py
 ```
 ros2 run nav2_map_server map_saver_cli -f ~/my_map
 ```
+
+**SAFETY PRECAUSION**: 
+
+Always have your remote controller ready to take over the control whenever necessary. 
