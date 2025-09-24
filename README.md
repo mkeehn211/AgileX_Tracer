@@ -65,15 +65,15 @@ This repository contains minimal packages to control the tracer robot using ROS.
 
 4. Run Cartographer
 
-```
-ros2 launch my_cartographer_launch cartographer_launch.py
-```
+    ```
+    ros2 launch my_cartographer_launch cartographer_launch.py
+    ```
 
 5. Save the map
 
-```
-ros2 run nav2_map_server map_saver_cli -f ~/my_map
-```
+    ```
+    ros2 run nav2_map_server map_saver_cli -f ~/my_map
+    ```
 
 **SAFETY PRECAUSION**: 
 
