@@ -47,6 +47,8 @@ POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher.linear_search_window
 
 POSE_GRAPH.optimization_problem.huber_scale = 1e2
 
+--TRAJECTORY_BUILDER_2D.motion_filter.max_angle_radians = math.rad(0.1)  
+
 -----------------TUNE THESE PARAMETERS FOR LOW LATENCY-------------------------------
 
 ------------Global SLAM------------
