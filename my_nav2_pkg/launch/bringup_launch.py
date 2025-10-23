@@ -41,23 +41,25 @@ def generate_launch_description():
             output='screen',
             arguments=[
                 '--x','0.102','--y','0','--z','0.076',
-                '--roll','0','--pitch','0','--yaw','0',
+                '--roll','0','--pitch','0','--yaw','3.14159',
                 '--frame-id','base_link','--child-frame-id','laser_frame'
             ]
         ),
 
-        # Static TF: base_link -> base_nav (rotate 180 deg; base_nav is child)
-        Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            name='static_tf_base_nav',
-            output='screen',
-            arguments=[
-                '--x','0','--y','0','--z','0',
-                '--roll','0','--pitch','0','--yaw','3.14159',
-                '--frame-id','base_link','--child-frame-id','base_nav'
-            ]
-        ),
+        # Lidar Odometry (rf2o) - publishes odom -> base_link from /scan
+        # Node(
+        #     package='rf2o_laser_odometry',
+        #     executable='rf2o_laser_odometry_node',  # was rf2o_laser_odometry
+        #     name='rf2o',
+        #     output='screen',
+        #     parameters=[{
+        #         'use_sim_time': use_sim_time,
+        #         'publish_tf': True,         # set False if another node publishes odom TF
+        #         'base_frame_id': 'base_link',
+        #         'odom_frame_id': 'odom',
+        #     }],
+        #     remappings=[('scan', 'scan')],
+        # ),
 
         # Map Server
         Node(
