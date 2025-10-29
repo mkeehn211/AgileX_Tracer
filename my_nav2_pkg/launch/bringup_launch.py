@@ -10,6 +10,7 @@ def generate_launch_description():
     pkg_share = get_package_share_directory('my_nav2_pkg')
     map_file = os.path.join(pkg_share, 'config', 'my_map.yaml')
     params_file = os.path.join(pkg_share, 'config', 'nav2_params.yaml')
+    ekf_file = os.path.join(pkg_share, 'config', 'ekf_scanodom.yaml')
 
     # Launch configuration variables
     use_sim_time = LaunchConfiguration('use_sim_time')
@@ -45,21 +46,6 @@ def generate_launch_description():
                 '--frame-id','base_link','--child-frame-id','laser_frame'
             ]
         ),
-
-        # Lidar Odometry (rf2o) - publishes odom -> base_link from /scan
-        # Node(
-        #     package='rf2o_laser_odometry',
-        #     executable='rf2o_laser_odometry_node',  # was rf2o_laser_odometry
-        #     name='rf2o',
-        #     output='screen',
-        #     parameters=[{
-        #         'use_sim_time': use_sim_time,
-        #         'publish_tf': True,         # set False if another node publishes odom TF
-        #         'base_frame_id': 'base_link',
-        #         'odom_frame_id': 'odom',
-        #     }],
-        #     remappings=[('scan', 'scan')],
-        # ),
 
         # Map Server
         Node(
@@ -114,6 +100,15 @@ def generate_launch_description():
             output='screen',
             parameters=[nav2_params],
         ),
+
+        # EKF: fuse lidar odom (/scan_odom) and publish odom->base_link and /odometry/filtered
+        # Node(
+        #     package='robot_localization',
+        #     executable='ekf_node',
+        #     name='ekf_filter_node',
+        #     output='screen',
+        #     parameters=[ekf_file],
+        # ),
 
         # Behavior Server (provides /spin, /back_up, /wait)
         Node(
