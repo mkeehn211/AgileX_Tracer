@@ -102,13 +102,13 @@ def generate_launch_description():
         ),
 
         # EKF: fuse lidar odom (/scan_odom) and publish odom->base_link and /odometry/filtered
-        # Node(
-        #     package='robot_localization',
-        #     executable='ekf_node',
-        #     name='ekf_filter_node',
-        #     output='screen',
-        #     parameters=[ekf_file],
-        # ),
+        Node(
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node',
+            output='screen',
+            parameters=[ekf_file],
+        ),
 
         # Behavior Server (provides /spin, /back_up, /wait)
         Node(
