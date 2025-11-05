@@ -76,6 +76,12 @@ This repository contains packages to control the tracer robot using ROS.
     ```
 3. Using the cartographer
 
+* Connect the lidar to your computer (the tracer base node should also be running)
+    ```
+    ros2 run sllidar_ros2 sllidar_node
+    
+    ```
+
 * To run cartographer
     ```
     ros2 launch my_cartographer_launch cartographer_launch.py
@@ -88,7 +94,7 @@ This repository contains packages to control the tracer robot using ROS.
     ```
 4. Navigation stack
 
-* Connect the lidar to your computer
+* Connect the lidar to your computer (the tracer base node should also be running)
     ```
     ros2 run sllidar_ros2 sllidar_node
     
