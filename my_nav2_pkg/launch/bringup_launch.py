@@ -1,6 +1,7 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -12,12 +13,27 @@ def generate_launch_description():
     params_file = os.path.join(pkg_share, 'config', 'nav2_params.yaml')
     ekf_file = os.path.join(pkg_share, 'config', 'ekf_scanodom.yaml')
 
-    # Launch configuration variables
-    use_sim_time = LaunchConfiguration('use_sim_time')
-    map_yaml = LaunchConfiguration('map')
-    nav2_params = LaunchConfiguration('params_file')
-
     return LaunchDescription([
+        Node(
+            package='joint_state_publisher',
+            executable='joint_state_publisher',
+            name='joint_state_publisher',
+            output='screen'
+            ),
+
+        # -----------------------------------------------------
+        # 1. Load your URDF robot model (robot_state_publisher)
+        # -----------------------------------------------------
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(
+                    get_package_share_directory('tracer_description'),
+                    'launch',
+                    'display.launch.py'
+                )
+            )
+        ),
+
         # Launch arguments
         DeclareLaunchArgument(
             'use_sim_time',
@@ -35,6 +51,7 @@ def generate_launch_description():
             description='Full path to the Nav2 parameters file'
         ),
 
+        # Static TF: base_link → laser_frame
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
@@ -47,61 +64,57 @@ def generate_launch_description():
             ]
         ),
 
-        # Map Server
+        # -------------------------
+        # Nav2 Bringup Components
+        # -------------------------
         Node(
             package='nav2_map_server',
             executable='map_server',
             name='map_server',
             output='screen',
-            parameters=[nav2_params],
+            parameters=[params_file],
         ),
 
-        # AMCL (localization)
         Node(
             package='nav2_amcl',
             executable='amcl',
             name='amcl',
             output='screen',
-            parameters=[nav2_params, {'use_sim_time': use_sim_time}],
+            parameters=[params_file],
         ),
 
-        # Planner Server (global planner)
         Node(
             package='nav2_planner',
             executable='planner_server',
             name='planner_server',
             output='screen',
-            parameters=[nav2_params],
+            parameters=[params_file],
         ),
 
-        # Controller Server (local planner / trajectory controller)
         Node(
             package='nav2_controller',
             executable='controller_server',
             name='controller_server',
             output='screen',
-            parameters=[nav2_params],
+            parameters=[params_file],
         ),
 
-        # Behavior Tree Navigator
         Node(
             package='nav2_bt_navigator',
             executable='bt_navigator',
             name='bt_navigator',
             output='screen',
-            parameters=[nav2_params],
+            parameters=[params_file],
         ),
 
-        # Waypoint Follower
         Node(
             package='nav2_waypoint_follower',
             executable='waypoint_follower',
             name='waypoint_follower',
             output='screen',
-            parameters=[nav2_params],
+            parameters=[params_file],
         ),
 
-        # EKF: fuse lidar odom (/scan_odom) and publish odom->base_link and /odometry/filtered
         Node(
             package='robot_localization',
             executable='ekf_node',
@@ -110,23 +123,21 @@ def generate_launch_description():
             parameters=[ekf_file],
         ),
 
-        # Behavior Server (provides /spin, /back_up, /wait)
         Node(
             package='nav2_behaviors',
             executable='behavior_server',
             name='behavior_server',
             output='screen',
-            parameters=[nav2_params],
+            parameters=[params_file],
         ),
 
-        # Lifecycle Manager
         Node(
             package='nav2_lifecycle_manager',
             executable='lifecycle_manager',
             name='lifecycle_manager_navigation',
             output='screen',
             parameters=[{
-                'use_sim_time': use_sim_time,
+                'use_sim_time': False,
                 'autostart': True,
                 'node_names': [
                     'map_server',
