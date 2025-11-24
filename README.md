@@ -28,7 +28,7 @@ This repository contains packages to control the tracer.
     ```
     mkdir -p ~/ros2_ws/src
     cd ~/ros2_ws/src
-    git clone https://github.com/mkeehn211/AgileX_Tracer.git
+    git clone --recurse-submodules https://github.com/mkeehn211/AgileX_Tracer.git
     cd ..
     colcon build
     ```
