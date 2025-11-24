@@ -2,10 +2,17 @@
 
 ## Packages
 
-This repository contains packages to control the tracer robot using ROS. 
+This repository contains packages to control the tracer.
 
-* tracer_base: a ROS wrapper around [ugv_sdk](https://github.com/agilexrobotics/ugv_sdk) to monitor and control the tracer robot
-* tracer_msgs: tracer related message definitions
+* my_cartographer_launch: a ROS2 package to run cartographer (contains custom lua file for Tracer)
+* my_nav2_pkg: a ROS2 package to run the navigation stack (contains custom yaml file for Tracer)
+* tracer_description: a ROS2 package containing a simple model of the Tracer (used in the nav stack)
+* [Tracer_ros2](https://github.com/ckwan02/tracer_ros2)
+    * tracer_base: a ROS wrapper around [ugv_sdk](https://github.com/agilexrobotics/ugv_sdk) to monitor and control the tracer robot
+    * tracer_msgs: tracer related message definitions
+* [ugv_sdk](https://github.com/agilexrobotics/ugv_sdk)
+* [Simple-2D-LiDAR-Odometry](https://github.com/dawan0111/Simple-2D-LiDAR-Odometry): turns LiDAR readings into odometry values
+* [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2): starts the LiDAR and starts publishing data
 
 ## Supported Hardware
 
@@ -21,8 +28,7 @@ This repository contains packages to control the tracer robot using ROS.
     ```
     mkdir -p ~/ros2_ws/src
     cd ~/ros2_ws/src
-    git clone https://github.com/agilexrobotics/ugv_sdk.git
-    git clone https://github.com/ckwan02/tracer_ros2.git
+    git clone https://github.com/mkeehn211/AgileX_Tracer.git
     cd ..
     colcon build
     ```
