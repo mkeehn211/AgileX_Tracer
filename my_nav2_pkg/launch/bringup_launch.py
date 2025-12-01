@@ -64,6 +64,27 @@ def generate_launch_description():
             ]
         ),
 
+        # Lidar Node
+        Node(
+            package='sllidar_ros2',
+            executable='sllidar_node',
+            name='sllidar_node',
+            output='screen',
+            parameters=[{
+                'serial_port': '/dev/ttyUSB0',
+                'frame_id': 'laser_frame',
+                'angle_compensate': True
+            }]
+        ),
+
+        # Lidar Odometry Node
+        Node(
+            package='lidar_odometry',
+            executable='lidar_odometry_node',
+            name='lidar_odometry_node',
+            output='screen'
+        ),
+
         # -------------------------
         # Nav2 Bringup Components
         # -------------------------
