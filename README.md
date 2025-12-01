@@ -41,7 +41,7 @@ This repository contains packages to control the tracer.
     
 * first time use tracer-ros2 package
    ```
-   cd ~/your_ws/src/ugv_sdk/scripts/
+   cd ~/ros2_ws/src/ugv_sdk/scripts/
    bash setup_can2usb.bash
    ```
    
