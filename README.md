@@ -82,12 +82,6 @@ This repository contains packages to control the tracer.
     ```
 3. Using the cartographer
 
-* Connect the lidar to your computer (the tracer base node should also be running)
-    ```
-    ros2 run sllidar_ros2 sllidar_node
-    
-    ```
-
 * To run cartographer
     ```
     ros2 launch my_cartographer_launch cartographer_launch.py
@@ -100,22 +94,12 @@ This repository contains packages to control the tracer.
     ```
 4. Navigation stack
 
-* Connect the lidar to your computer (the tracer base node should also be running)
-    ```
-    ros2 run sllidar_ros2 sllidar_node
-    
-    ```
-* Run the lidar odom
-    ```
-    ros2 run lidar_odometry lidar_odometry_node
-    
-    ```
-* Launch the nav stack
+* Launch the nav stack in a seperate terminal (the tracer base node should also be running)
     ```
     ros2 launch my_nav2_pkg bringup_launch.py
     
     ```
-* Launch rviz to begin navigation
+* Launch rviz in a seperate terminal to begin navigation
     ```
     ros2 launch nav2_bringup rviz_launch.py
     
