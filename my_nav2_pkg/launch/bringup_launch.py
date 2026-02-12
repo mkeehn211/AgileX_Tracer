@@ -64,6 +64,37 @@ def generate_launch_description():
             ]
         ),
 
+        # Static TF: base_link → imu_link (adjust pose if needed)
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='static_tf_base_imu',
+            output='screen',
+            arguments=[
+                '--x','0','--y','0','--z','0',
+                '--roll','0','--pitch','0','--yaw','0',
+                '--frame-id','base_link','--child-frame-id','imu_link'
+            ]
+        ),
+
+        # # IMU filter (Madgwick) -> outputs /imu/data
+        # Node(
+        #     package='imu_filter_madgwick',
+        #     executable='imu_filter_madgwick_node',
+        #     name='imu_filter',
+        #     output='screen',
+        #     parameters=[{
+        #         'use_mag': False,
+        #         'world_frame': 'enu',
+        #         'publish_tf': False,
+        #         'gain': 0.05
+        #     }],
+        #     remappings=[
+        #         ('imu/data_raw', '/imu/data_raw'),
+        #         ('imu/data', '/imu/data')
+        #     ]
+        # ),
+
         # Lidar Node
         Node(
             package='sllidar_ros2',
@@ -82,8 +113,84 @@ def generate_launch_description():
             package='lidar_odometry',
             executable='lidar_odometry_node',
             name='lidar_odometry_node',
+            output='screen',
+            parameters=[{
+                'scan_topic_name': '/scan',
+                'odom_topic_name': '/scan_odom',
+                'max_correspondence_distance': 1.0,
+                'transformation_epsilon': 0.005,
+                'maximum_iterations': 30
+            }]
+        ),
+ 
+        # IMU covariance/bias republisher
+        Node(
+            package='my_nav2_pkg',
+            executable='imu_cov_republisher',
+            name='imu_cov_republisher',
             output='screen'
         ),
+
+        # EKF Node for sensor fusion
+        Node(
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_local',
+            output='screen',
+            parameters=[{
+                'use_sim_time': False,
+                'frequency': 50.0,
+                'two_d_mode': True,
+                'publish_tf': True,
+
+                'map_frame': 'map',
+                'odom_frame': 'odom',
+                'base_link_frame': 'base_link',
+                'world_frame': 'odom',
+
+                # Fuse odom and imu
+                'odom0': '/odom',
+                'odom0_queue_size': 20,
+                'odom0_differential': False,
+                'odom0_relative': False,
+                'odom0_nodelay': True,
+                'odom0_config': [ False, False, False,
+                                  False, False, False,
+                                  True,  False, False,
+                                  False, False, True,
+                                  False, False, False ],
+
+                # Lidar odom (pose)
+                'odom1': '/scan_odom',
+                'odom1_queue_size': 50,
+                'odom1_nodelay': True,
+                'odom1_differential': False,
+                'odom1_relative': False,
+                'odom1_config': [ True, True, False,
+                                  False, False, True,
+                                  False, False, False,
+                                  False, False, False,
+                                  False, False, False ],
+
+                # IMU: yaw rate only (disable orientation to avoid zero-cov NaNs)
+                'imu0': '/imu/data_cov',
+                'imu0_queue_size': 50,
+                'imu0_nodelay': True,
+                'imu0_differential': False,
+                'imu0_relative': False,
+                'imu0_remove_gravitational_acceleration': False,
+                'imu0_config': [ False, False, False,
+                                 False, False, False,
+                                 False, False, False,
+                                 False, False, True,
+                                 False, False, False ],
+
+                'sensor_timeout': 0.2,
+                'print_diagnostics': True
+                
+            }]
+        ),
+
 
         # -------------------------
         # Nav2 Bringup Components
@@ -136,13 +243,14 @@ def generate_launch_description():
             parameters=[params_file],
         ),
 
-        Node(
-            package='robot_localization',
-            executable='ekf_node',
-            name='ekf_filter_node',
-            output='screen',
-            parameters=[ekf_file],
-        ),
+        # Old ekf node
+        # Node(
+        #     package='robot_localization',
+        #     executable='ekf_node',
+        #     name='ekf_filter_node',
+        #     output='screen',
+        #     parameters=[ekf_file],
+        # ),
 
         Node(
             package='nav2_behaviors',
