@@ -27,7 +27,7 @@ This repository contains packages to control the tracer.
 ```bash
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
-git clone --recurse-submodules https://github.com/mkeehn211/AgileX_Tracer_VSLAM.git
+git clone --recurse-submodules https://github.com/mkeehn211/AgileX_Tracer.git
 ```
  
 > **Important:** You must use `--recurse-submodules` to pull the external packages. If you already cloned without it, run:
@@ -121,48 +121,20 @@ source install/setup.bash
     ros2 launch wit_ros2_imu rviz_and_imu.launch.py
     
     ```
-* To run the RealSense Depth Camera
-    ```
-    sudo modprobe uvcvideo
-
-    ros2 launch realsense2_camera rs_launch.py \
-        align_depth.enable:=true \
-        enable_gyro:=false \
-        enable_accel:=false
     
-    ```
-    
-### 4. Navigation stack and VSLAM
+### 4. Navigation stack
 
 * Launch the nav stack in a seperate terminal (the tracer base node should also be running)
     ```
     ros2 launch my_nav2_pkg bringup_launch.py
     
     ```
-* Launch rtabmap
+* Launch rviz in a seperate terminal
     ```
-    ros2 launch rtabmap_launch rtabmap.launch.py \
-        rgb_topic:=/camera/camera/color/image_raw \
-        depth_topic:=/camera/camera/aligned_depth_to_color/image_raw \
-        camera_info_topic:=/camera/camera/color/camera_info \
-        odom_topic:=/odom \
-        frame_id:=base_link \
-        odom_frame_id:=odom \
-        rviz:=true \
-        approx_sync_max_interval:=0.02 \
-        Reg/Force3DoF:=true
+    ros2 launch nav2_bringup rviz_launch.py
+    
     ```
-* Rviz will automatically pull up and mapping will begin (set goal pose to navigate)
-
-* To stop mapping and use the current map to localize add the following line to launch:
-```
-  localization:=true
-```
-
-* The map is automatically saved when the program ends to delete the map data run:
-```
-  rm ~/.ros/rtabmap.db
-```
+* Once Rviz pulls up set an initial position for the robot. Now the robot can navigate on its own.
     
 **SAFETY PRECAUSION**: 
 
