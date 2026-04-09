@@ -19,20 +19,32 @@ This repository contains packages to control the tracer.
 * Tracer
 * Tracer-mini
 
+
+
+## Installation
+ 
+### 1. Clone the repository (including submodules)
+```bash
+mkdir -p ~/ros2_ws/src
+cd ~/ros2_ws/src
+git clone --recurse-submodules https://github.com/mkeehn211/AgileX_Tracer_VSLAM.git
+```
+ 
+> **Important:** You must use `--recurse-submodules` to pull the external packages. If you already cloned without it, run:
+> ```bash
+> git submodule update --init --recursive
+> ```
+ 
+### 2. Build the workspace
+```bash
+cd ~/ros2_ws
+colcon build
+source install/setup.bash
+```
+
 ## Basic usage of the ROS packages
 
-1. Clone the packages into your colcon workspace and compile
-
-    (the following instructions assume your catkin workspace is at: ~/ros2_ws/src)
-
-    ```
-    mkdir -p ~/ros2_ws/src
-    cd ~/ros2_ws/src
-    git clone --recurse-submodules https://github.com/mkeehn211/AgileX_Tracer.git
-    cd ..
-    colcon build
-    ```
-2. Setup CAN-To-USB adapter
+### 1. Setup CAN-To-USB adapter
 
 * Enable gs_usb kernel module(If you have already added this module, you do not need to add it)
     ```
@@ -56,7 +68,7 @@ This repository contains packages to control the tracer.
     # receiving data from can0
     candump can0
     ```
-3. Launch ROS nodes
+### 2. Launch ROS nodes
  
 * Start the base node for the Tracer robot
 
@@ -80,31 +92,77 @@ This repository contains packages to control the tracer.
     ros2 run tracer_base teleop_test
     
     ```
-3. Using the cartographer
+### 3. Running the sensors
 
-* To run cartographer
+* To run the LiDAR (the nav2 package does this already)
     ```
-    ros2 launch my_cartographer_launch cartographer_launch.py
+    ros2 run sllidar_ros2 sllidar_node
     
     ```
-* Saving the map
-    ```
-    ros2 run nav2_map_server map_saver_cli -f ~/my_map
+* To run the IMU
+   1. Install pyserial
+  
+   ```
+    sudo apt install python3-serial
     
     ```
-4. Navigation stack
+   2. Bind port
+   ```
+   cd ros2_ws/src wit_ros2_imu
+   sudo chmod +x bind_usb.sh
+   sudo ./bind_usb.sh
+    
+    ```
+   3. Build the worksapce and launch the IMU
+
+    ```
+    colcon build
+    source install/setup.bash
+    ros2 launch wit_ros2_imu rviz_and_imu.launch.py
+    
+    ```
+* To run the RealSense Depth Camera
+    ```
+    sudo modprobe uvcvideo
+
+    ros2 launch realsense2_camera rs_launch.py \
+        align_depth.enable:=true \
+        enable_gyro:=false \
+        enable_accel:=false
+    
+    ```
+    
+### 4. Navigation stack and VSLAM
 
 * Launch the nav stack in a seperate terminal (the tracer base node should also be running)
     ```
     ros2 launch my_nav2_pkg bringup_launch.py
     
     ```
-* Launch rviz in a seperate terminal to begin navigation
+* Launch rtabmap
     ```
-    ros2 launch nav2_bringup rviz_launch.py
-    
+    ros2 launch rtabmap_launch rtabmap.launch.py \
+        rgb_topic:=/camera/camera/color/image_raw \
+        depth_topic:=/camera/camera/aligned_depth_to_color/image_raw \
+        camera_info_topic:=/camera/camera/color/camera_info \
+        odom_topic:=/odom \
+        frame_id:=base_link \
+        odom_frame_id:=odom \
+        rviz:=true \
+        approx_sync_max_interval:=0.02 \
+        Reg/Force3DoF:=true
     ```
-* In rviz you can set an intial orientation (2D Pose Estimate) and set a goal point (Nav2 Goal)
+* Rviz will automatically pull up and mapping will begin (set goal pose to navigate)
+
+* To stop mapping and use the current map to localize add the following line to launch:
+```
+  localization:=true
+```
+
+* The map is automatically saved when the program ends to delete the map data run:
+```
+  rm ~/.ros/rtabmap.db
+```
     
 **SAFETY PRECAUSION**: 
 
